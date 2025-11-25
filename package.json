@@ -1,0 +1,28 @@
+{
+  "name": "llmemo",
+  "version": "1.0.0",
+  "description": "Every AI conversation is a meeting worth remembering",
+  "author": "Patrick Somerville",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/llmemo.git"
+  },
+  "scripts": {
+    "build": "cd extension && zip -r ../dist/llmemo.zip .",
+    "build:landing": "mkdir -p dist && cp landing-page/index.html dist/",
+    "dev": "echo 'Load extension folder in chrome://extensions with Developer Mode'",
+    "clean": "rm -rf dist",
+    "package": "npm run clean && mkdir -p dist && npm run build && npm run build:landing"
+  },
+  "keywords": [
+    "chrome-extension",
+    "ai",
+    "llm",
+    "chatgpt",
+    "claude",
+    "gemini",
+    "conversation",
+    "recorder"
+  ]
+}

@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLMemo - Every AI conversation is a meeting worth remembering</title>
+  <meta name="description" content="Record, search, and revisit your conversations with Claude, ChatGPT, and Gemini. Your AI meetings deserve better than disappearing into chat history.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="LLMemo - Record Your AI Conversations">
+  <meta property="og:description" content="Every AI conversation is a meeting worth remembering. Record, search, and revisit your chats with Claude, ChatGPT, and more.">
+  <meta property="og:type" content="website">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%230f1419'/><circle cx='50' cy='50' r='35' stroke='%23f5a623' stroke-width='4' fill='none'/><circle cx='50' cy='50' r='4' fill='%23f5a623'/></svg>">
+
+  <style>
+    :root {
+      --bg-primary: #0f1419;
+      --bg-secondary: #1a1f26;
+      --bg-tertiary: #242b33;
+      --text-primary: #e7e9ea;
+      --text-secondary: #8b98a5;
+      --text-muted: #6e7a86;
+      --accent: #f5a623;
+      --accent-hover: #ffb840;
+      --accent-subtle: rgba(245, 166, 35, 0.12);
+      --success: #00c853;
+      --border: rgba(255, 255, 255, 0.08);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Navigation */
+    nav {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--bg-secondary);
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-icon::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-primary);
+    }
+
+    /* Hero */
+    .hero {
+      padding: 100px 0 80px;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: var(--accent-subtle);
+      border-radius: 100px;
+      font-size: 13px;
+      color: var(--accent);
+      margin-bottom: 24px;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    h1 {
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    .highlight {
+      color: var(--accent);
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto 40px;
+    }
+
+    .cta-group {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: var(--bg-primary);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-tertiary);
+    }
+
+    /* Providers */
+    .providers {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin: 60px 0;
+    }
+
+    .provider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .provider-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .provider-icon.claude {
+      background: rgba(212, 163, 115, 0.15);
+      color: #d4a373;
+    }
+
+    .provider-icon.openai {
+      background: rgba(16, 163, 127, 0.15);
+      color: #10a37f;
+    }
+
+    .provider-icon.google {
+      background: rgba(66, 133, 244, 0.15);
+      color: #4285f4;
+    }
+
+    /* Features */
+    .features {
+      padding: 60px 0;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .section-title h2 {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .section-title p {
+      color: var(--text-secondary);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .feature {
+      padding: 32px;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--accent-subtle);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      color: var(--accent);
+    }
+
+    .feature h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .feature p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    /* Pricing */
+    .pricing {
+      padding: 80px 0;
+    }
+
+    .pricing-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .pricing-card {
+      padding: 32px;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    .pricing-card.featured {
+      border-color: var(--accent);
+    }
+
+    .pricing-card.featured::before {
+      content: 'Most Popular';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: var(--bg-primary);
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .pricing-card h3 {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .pricing-card .price {
+      font-size: 40px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .pricing-card .price span {
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    .pricing-card .price-note {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .pricing-features {
+      list-style: none;
+      margin-bottom: 24px;
+    }
+
+    .pricing-features li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .pricing-features li::before {
+      content: '✓';
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .pricing-card .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* Privacy */
+    .privacy {
+      padding: 60px 0;
+      text-align: center;
+    }
+
+    .privacy-badges {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    .privacy-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .privacy-badge svg {
+      color: var(--success);
+    }
+
+    /* Footer */
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    footer p {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    footer a {
+      color: var(--text-secondary);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: var(--text-primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+
+      .providers {
+        flex-wrap: wrap;
+        gap: 24px;
+      }
+
+      .hero {
+        padding: 60px 0 40px;
+      }
+
+      .cta-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .cta-group .btn {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="container nav-content">
+      <a href="/" class="logo">
+        <div class="logo-icon"></div>
+        LLMemo
+      </a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="https://github.com/yourusername/llmemo" target="_blank">GitHub</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          Now recording
+        </div>
+
+        <h1>
+          Every AI conversation is a<br>
+          <span class="highlight">meeting worth remembering</span>
+        </h1>
+
+        <p>
+          Your conversations with Claude, ChatGPT, and Gemini contain decisions, breakthroughs, and ideas.
+          Stop letting them disappear into chat history.
+        </p>
+
+        <div class="cta-group">
+          <a href="#pricing" class="btn btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Get LLMemo
+          </a>
+          <a href="https://github.com/yourusername/llmemo" class="btn btn-secondary" target="_blank">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            View Source
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="providers">
+      <div class="provider">
+        <div class="provider-icon claude">C</div>
+        Claude
+      </div>
+      <div class="provider">
+        <div class="provider-icon openai">G</div>
+        ChatGPT
+      </div>
+      <div class="provider">
+        <div class="provider-icon google">G</div>
+        Gemini
+      </div>
+    </section>
+
+    <section class="features" id="features">
+      <div class="container">
+        <div class="section-title">
+          <h2>Your AI conversations, preserved</h2>
+          <p>Everything you need to capture and revisit your AI meetings</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature">
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <h3>Automatic Recording</h3>
+            <p>Every conversation is captured in the background. Just chat normally and LLMemo handles the rest.</p>
+          </div>
+
+          <div class="feature">
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </div>
+            <h3>Full-Text Search</h3>
+            <p>Find that conversation from three weeks ago. Search across all your AI chats instantly.</p>
+          </div>
+
+          <div class="feature">
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <h3>Export Everything</h3>
+            <p>Your data is yours. Export all conversations to JSON anytime. No lock-in, no questions.</p>
+          </div>
+
+          <div class="feature">
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <h3>100% Local</h3>
+            <p>All data stored on your device. Nothing sent to our servers. Your conversations stay private.</p>
+          </div>
+
+          <div class="feature">
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <path d="M3 9h18"/>
+                <path d="M9 21V9"/>
+              </svg>
+            </div>
+            <h3>Session Timeline</h3>
+            <p>Browse your AI conversation history like a calendar. See what you discussed and when.</p>
+          </div>
+
+          <div class="feature">
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </div>
+            <h3>Works Everywhere</h3>
+            <p>Claude, ChatGPT, Gemini. One extension captures them all. More providers coming soon.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pricing" id="pricing">
+      <div class="container">
+        <div class="section-title">
+          <h2>Simple, fair pricing</h2>
+          <p>Start free, upgrade when you need more</p>
+        </div>
+
+        <div class="pricing-cards">
+          <div class="pricing-card">
+            <h3>Free</h3>
+            <div class="price">$0</div>
+            <div class="price-note">Forever</div>
+            <ul class="pricing-features">
+              <li>50 sessions recorded</li>
+              <li>Full-text search</li>
+              <li>Export to JSON</li>
+              <li>All providers supported</li>
+            </ul>
+            <a href="#" class="btn btn-secondary" id="free-download">Download Free</a>
+          </div>
+
+          <div class="pricing-card featured">
+            <h3>Pro</h3>
+            <div class="price">$10<span>/month</span></div>
+            <div class="price-note">or $79 lifetime</div>
+            <ul class="pricing-features">
+              <li>Unlimited sessions</li>
+              <li>Full-text search</li>
+              <li>Export to JSON</li>
+              <li>Priority support</li>
+              <li>Early access to features</li>
+            </ul>
+            <a href="#" class="btn btn-primary" id="pro-purchase">Get Pro</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="privacy">
+      <div class="container">
+        <h2>Privacy by design</h2>
+        <p>Your AI conversations contain sensitive information. We built LLMemo to respect that.</p>
+
+        <div class="privacy-badges">
+          <div class="privacy-badge">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            All data stored locally
+          </div>
+          <div class="privacy-badge">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            No cloud sync required
+          </div>
+          <div class="privacy-badge">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            Open source code
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>
+        Built by <a href="https://twitter.com/yourusername">@yourusername</a> ·
+        <a href="https://github.com/yourusername/llmemo">GitHub</a> ·
+        <a href="mailto:hello@llmemo.app">Contact</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- Lemonsqueezy Integration -->
+  <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
+  <script>
+    // Replace these with your actual Lemonsqueezy product IDs
+    const LEMONSQUEEZY_MONTHLY_URL = 'https://YOURSTORE.lemonsqueezy.com/checkout/buy/PRODUCT_ID';
+    const LEMONSQUEEZY_LIFETIME_URL = 'https://YOURSTORE.lemonsqueezy.com/checkout/buy/LIFETIME_PRODUCT_ID';
+    const CHROME_EXTENSION_URL = 'https://chrome.google.com/webstore/detail/llmemo/YOUR_EXTENSION_ID';
+
+    document.getElementById('free-download').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.open(CHROME_EXTENSION_URL, '_blank');
+    });
+
+    document.getElementById('pro-purchase').addEventListener('click', (e) => {
+      e.preventDefault();
+      // Use Lemonsqueezy overlay checkout
+      if (window.LemonSqueezy) {
+        window.LemonSqueezy.Url.Open(LEMONSQUEEZY_MONTHLY_URL);
+      } else {
+        window.open(LEMONSQUEEZY_MONTHLY_URL, '_blank');
+      }
+    });
+  </script>
+</body>
+</html>

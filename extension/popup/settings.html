@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLMemo Settings</title>
+  <link rel="stylesheet" href="popup.css">
+  <style>
+    .settings-container {
+      padding: var(--space-lg);
+    }
+
+    .settings-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-xl);
+    }
+
+    .settings-header h1 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .settings-section {
+      margin-bottom: var(--space-xl);
+    }
+
+    .settings-section h2 {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: var(--space-md);
+    }
+
+    .setting-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-md);
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      margin-bottom: var(--space-sm);
+    }
+
+    .setting-info {
+      flex: 1;
+    }
+
+    .setting-label {
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .setting-description {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Toggle Switch */
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--bg-tertiary);
+      border-radius: 24px;
+      transition: 0.2s;
+    }
+
+    .toggle-slider::before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: var(--text-secondary);
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+
+    .toggle input:checked + .toggle-slider {
+      background-color: var(--accent);
+    }
+
+    .toggle input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+      background-color: var(--bg-primary);
+    }
+
+    /* Provider toggles */
+    .provider-toggle {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .provider-icon-small {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .provider-icon-small.claude {
+      background: rgba(212, 163, 115, 0.15);
+      color: #d4a373;
+    }
+
+    .provider-icon-small.openai {
+      background: rgba(16, 163, 127, 0.15);
+      color: #10a37f;
+    }
+
+    .provider-icon-small.google {
+      background: rgba(66, 133, 244, 0.15);
+      color: #4285f4;
+    }
+
+    /* Danger zone */
+    .danger-zone {
+      border: 1px solid rgba(255, 82, 82, 0.3);
+      border-radius: 8px;
+      padding: var(--space-md);
+    }
+
+    .danger-zone h2 {
+      color: var(--error);
+    }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--error);
+      border: 1px solid var(--error);
+    }
+
+    .btn-danger:hover {
+      background: rgba(255, 82, 82, 0.1);
+    }
+
+    /* Stats */
+    .storage-stats {
+      display: flex;
+      gap: var(--space-lg);
+      padding: var(--space-md);
+      background: var(--bg-secondary);
+      border-radius: 8px;
+    }
+
+    .storage-stat {
+      text-align: center;
+    }
+
+    .storage-stat-value {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .storage-stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    /* About section */
+    .about-section {
+      text-align: center;
+      padding: var(--space-lg);
+      border-top: 1px solid var(--border);
+      margin-top: var(--space-xl);
+    }
+
+    .about-section .version {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: var(--space-sm);
+    }
+
+    .about-links {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-lg);
+    }
+
+    .about-links a {
+      font-size: 12px;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .about-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="settings-container">
+      <header class="settings-header">
+        <button class="btn-icon" id="backBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <h1>Settings</h1>
+      </header>
+
+      <section class="settings-section">
+        <h2>Recording</h2>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label">Recording Active</div>
+            <div class="setting-description">Capture conversations automatically</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="recordingEnabled" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2>Providers</h2>
+
+        <div class="setting-item">
+          <div class="provider-toggle">
+            <div class="provider-icon-small claude">C</div>
+            <div class="setting-info">
+              <div class="setting-label">Claude</div>
+              <div class="setting-description">claude.ai</div>
+            </div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="providerClaude" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="provider-toggle">
+            <div class="provider-icon-small openai">G</div>
+            <div class="setting-info">
+              <div class="setting-label">ChatGPT</div>
+              <div class="setting-description">chatgpt.com</div>
+            </div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="providerOpenAI" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="provider-toggle">
+            <div class="provider-icon-small google">G</div>
+            <div class="setting-info">
+              <div class="setting-label">Gemini</div>
+              <div class="setting-description">gemini.google.com</div>
+            </div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="providerGoogle" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2>Storage</h2>
+
+        <div class="storage-stats">
+          <div class="storage-stat">
+            <div class="storage-stat-value" id="totalSessions">--</div>
+            <div class="storage-stat-label">Sessions</div>
+          </div>
+          <div class="storage-stat">
+            <div class="storage-stat-value" id="totalMessages">--</div>
+            <div class="storage-stat-label">Messages</div>
+          </div>
+          <div class="storage-stat">
+            <div class="storage-stat-value" id="storageSize">--</div>
+            <div class="storage-stat-label">Storage Used</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-section danger-zone">
+        <h2>Danger Zone</h2>
+
+        <div class="setting-item" style="background: transparent; padding: 0;">
+          <div class="setting-info">
+            <div class="setting-label">Clear All Data</div>
+            <div class="setting-description">Permanently delete all recorded conversations</div>
+          </div>
+          <button class="btn btn-danger" id="clearDataBtn">Clear</button>
+        </div>
+      </section>
+
+      <div class="about-section">
+        <div class="version">LLMemo v1.0.0</div>
+        <div class="about-links">
+          <a href="https://llmemo.app" target="_blank">Website</a>
+          <a href="https://github.com/yourusername/llmemo" target="_blank">GitHub</a>
+          <a href="mailto:support@llmemo.app">Support</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>
