@@ -39,7 +39,7 @@ LLMemo treats every AI conversation like a meeting worth preserving.
 
 ```bash
 # Clone the repo
-git clone https://github.com/yourusername/llmemo.git
+git clone https://github.com/patricksomerville/llmemo.git
 cd llmemo
 
 # Load in Chrome
@@ -84,7 +84,7 @@ LLMemo is designed with privacy as a core principle:
 
 ```bash
 # Clone
-git clone https://github.com/yourusername/llmemo.git
+git clone https://github.com/patricksomerville/llmemo.git
 cd llmemo
 
 # Make changes to extension/
